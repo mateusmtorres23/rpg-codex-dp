@@ -173,9 +173,9 @@ class Interface:
         )
 
         # Importação adiada para evitar dependências circulares.
-        from story.jogo1 import lore_introducao
+        from story.jogo1 import iniciar_narrativa
 
-        lore_introducao(personagem_escolhido)
+        iniciar_narrativa(personagem_escolhido)
 
     @staticmethod
     def visualizar_ficha() -> None:
