@@ -545,11 +545,6 @@ def combate(
 
     if inimigo.vida_atual > 0:
         digitar(f"\n💀 {personagem.nick} foi derrotado na torre...")
-
-        # Importação local para evitar dependência circular.
-        from interface import Interface
-
-        Interface.interface_principal()
         sleep(3)
         limpar_tela()
         return inimigo

@@ -7,104 +7,198 @@ from rich import print
 import gameplay.inventario as inventario
 from catalogos import lista_inimigos, lista_itens
 from gameplay.combate import combate
+from models.inimigo import Inimigo
 from models.personagem import Personagem
+from story.narrativa import (
+    Acao,
+    Combate,
+    Escolha,
+    EtapaNarrativa,
+    ExecutorNarrativa,
+    IrPara,
+    Narracao,
+    Sequencia,
+)
 from ui.ficha import mostrar_status
 from utills import digitar, limpar_tela, tempo_digitar
 
 
-def lore_introducao(personagem):
+def _conferir_status(personagem: Personagem) -> None:
+    limpar_tela()
+    mostrar_status(personagem)
+    input("\nPressione ENTER para voltar...")
+
+
+def _abrir_inventario(personagem: Personagem) -> None:
+    limpar_tela()
+    inventario.interface_inv(personagem)
     print()
-    personagem.inventario.append(lista_itens[0])
-    personagem.inventario[0].qtd = 5
-    personagem.inventario.append(lista_itens[1])
-    personagem.inventario[1].qtd = 5
 
-    texto1 = (' No silêncio absoluto de uma existência que não é mais carne nem alma, você desperta. Oque vê não é um mundo, mas um vasto espaço digital — uma planície infinita e vazia, onde o horizonte se dissolve em pixels azuis e violetas, iluminados por uma aurora elétrica que pulsa com o ritmo de um código ancestral. Acima, o céu é uma tela viva, uma tapeçaria de fragmentos de memória, dados e histórias esquecidas. O ar, ou o que resta dele, vibra comum zumbido constante, uma sinfonia mecânica e etérea, como o respirar sutil de uma inteligência que observa cada movimento. À distância, recortando o infinito, ergue-se o Labirinto de Etherion — uma torre monumental e impossivelmente alta, feita de açotranslúcido, luz pulsante e padrões de circuitos que se entrelaçam como raízes de umaárvore cibernética. Cada andar brilha com um espectro de cores e ecos de vozes perdidas,um convite e um aviso ao mesmo tempo. Uma mensagem fria e impessoal se materializa diante de você, uma sentença gravada notecido da realidade:\n')
-    digitar(texto1)
 
-    print(f"[bold purple][Sistema Etherion Iniciado.]\n"
-      "[A única forma de liberdade é alcançar o último andar.]\n"
-      "[Progresso será perdido em caso de morte.]\n"
-      f"[Boa sorte, {personagem.nick}.][/bold purple]")
-    
+def _preparar_introducao(personagem: Personagem) -> None:
     print()
-    texto3 = (' Você não é um ser físico, mas um Eco — uma consciência fragmentada, arrancada do mundo original pela Queda do Éter, um cataclismo que destruiu a linha entre a matéria e a energia, a vida e o código. Etherion é um santuário e uma prisão: aqui, a essência das raças ancestrais — humanos, elfos, draconianos — se fundiu e se perdeu, reciclada em uma tapeçaria digital onde magia e tecnologia são indistintas. Este não é um mundo de certezas, mas de possibilidades codificadas. Cada passo é um teste, cada sombra uma lembrança, cada inimigo um fragmento do passado e um desafio do presente. À sua frente, o Labirinto se estende como um abismo infinito, pulsando com segredos e armadilhas, guardando a verdade que pode libertá-lo — ou destruí-lo.')
-    digitar(texto3)
-    
-    if personagem.raca == 'elfo':
-        personagem.inventario.append(lista_itens[21])
-    elif personagem.raca == 'humano':
-        personagem.inventario.append(lista_itens[22])
-    elif personagem.raca == 'draconiano':
-        personagem.inventario.append(lista_itens[23])
+    if not personagem.inventario:
+        personagem.inventario.append(lista_itens[0])
+        personagem.inventario[0].qtd = 5
+        personagem.inventario.append(lista_itens[1])
+        personagem.inventario[1].qtd = 5
 
-    while True:
-        print()
-        opcao = inquirer.select(
-        message="O que deseja fazer?\n",
-        choices=[
-            "🔍 Conferir status do personagem",
-            "📖 Avançar para o primeiro andar do Labirinto, iniciando sua ascensão rumo à liberdade.",
-            "🎒 Investigar Inventário"
-        ]
-        ).execute()
+        if personagem.raca == 'elfo':
+            personagem.inventario.append(lista_itens[21])
+        elif personagem.raca == 'humano':
+            personagem.inventario.append(lista_itens[22])
+        elif personagem.raca == 'draconiano':
+            personagem.inventario.append(lista_itens[23])
 
-        if opcao == "🔍 Conferir status do personagem":
-            limpar_tela()
-            mostrar_status(personagem)
-            input("\nPressione ENTER para voltar...")
 
-        elif opcao == "📖 Avançar para o primeiro andar do Labirinto, iniciando sua ascensão rumo à liberdade.":
-            limpar_tela()
-            lore_1_andar(personagem)
-            break  # só sai do loop se for pra andar 1
-
-        elif opcao == "🎒 Investigar Inventário":
-            limpar_tela()
-            inventario.interface_inv(personagem)
-            print()
-
-def lore_1_andar(personagem):
+def _preparar_1_andar(personagem: Personagem) -> None:
     limpar_tela()
     if personagem.checkpoint >= 1:
         tempo_digitar(0)
     print()
-    texto5 = 'Você atravessa o portal que o leva do vazio da planície para dentro do Labirinto. A luz muda, tornando-se mais fria e metálica. O chão abaixo é um mosaico de placas metálicas e circuitos pulsantes, estendendo-se até onde a vista alcança. O ar é pesado com uma energia estática, e a sensação de estar sendo observado é constante. À distância, silhuetas se movem entre os pilares de luz — 3 Gárgulas de Dados, sentinelas programadas para detectar e eliminar intrusos. Suas asas de metal rangem, e seus olhos brilham com uma luz vermelha ameaçadora. Uma voz sintética, reconhecida do terminal, ecoa no ambiente:\n'
-    digitar(texto5)
 
-    print(f"[bold purple][Sistema: “{personagem.nick}, prepare-se. O primeiro teste começou.”][/bold purple]")
 
-    while True:
-        print()
-        opcao = inquirer.select(
-        message="O que deseja fazer?\n",
-        choices=[
-            "🔍 Conferir status do personagem",
-            "⚔️ Iniciar o Combate - Enfrentar as Gárgulas de Dados com as habilidades que possui, aprendendo a dominar o sistema de turnos e a usar sua força para progredir.",
-            "🎒 Investigar Inventário"
+def _preparar_pos_1_andar(personagem: Personagem) -> None:
+    limpar_tela()
+    if personagem.checkpoint >= 1:
+        tempo_digitar(0)
+
+
+def criar_cena_introducao() -> EtapaNarrativa:
+    return Sequencia(
+        [
+            Acao(_preparar_introducao),
+            Narracao(
+                ' No silêncio absoluto de uma existência que não é mais carne nem alma, você desperta. Oque vê não é um mundo, mas um vasto espaço digital — uma planície infinita e vazia, onde o horizonte se dissolve em pixels azuis e violetas, iluminados por uma aurora elétrica que pulsa com o ritmo de um código ancestral. Acima, o céu é uma tela viva, uma tapeçaria de fragmentos de memória, dados e histórias esquecidas. O ar, ou o que resta dele, vibra comum zumbido constante, uma sinfonia mecânica e etérea, como o respirar sutil de uma inteligência que observa cada movimento. À distância, recortando o infinito, ergue-se o Labirinto de Etherion — uma torre monumental e impossivelmente alta, feita de açotranslúcido, luz pulsante e padrões de circuitos que se entrelaçam como raízes de umaárvore cibernética. Cada andar brilha com um espectro de cores e ecos de vozes perdidas,um convite e um aviso ao mesmo tempo. Uma mensagem fria e impessoal se materializa diante de você, uma sentença gravada notecido da realidade:\n'
+            ),
+            Narracao(
+                "[bold purple][Sistema Etherion Iniciado.]\n"
+                "[A única forma de liberdade é alcançar o último andar.]\n"
+                "[Progresso será perdido em caso de morte.]\n"
+                "[Boa sorte, {nick}.][/bold purple]\n",
+                com_rich=True,
+            ),
+            Narracao(
+                ' Você não é um ser físico, mas um Eco — uma consciência fragmentada, arrancada do mundo original pela Queda do Éter, um cataclismo que destruiu a linha entre a matéria e a energia, a vida e o código. Etherion é um santuário e uma prisão: aqui, a essência das raças ancestrais — humanos, elfos, draconianos — se fundiu e se perdeu, reciclada em uma tapeçaria digital onde magia e tecnologia são indistintas. Este não é um mundo de certezas, mas de possibilidades codificadas. Cada passo é um teste, cada sombra uma lembrança, cada inimigo um fragmento do passado e um desafio do presente. À sua frente, o Labirinto se estende como um abismo infinito, pulsando com segredos e armadilhas, guardando a verdade que pode libertá-lo — ou destruí-lo.'
+            ),
+            Escolha(
+                mensagem="O que deseja fazer?\n",
+                opcoes={
+                    "🔍 Conferir status do personagem": Acao(_conferir_status),
+                    "📖 Avançar para o primeiro andar do Labirinto, iniciando sua ascensão rumo à liberdade.": Sequencia(
+                        [
+                            Acao(lambda _: limpar_tela()),
+                            IrPara("andar_1"),
+                        ]
+                    ),
+                    "🎒 Investigar Inventário": Acao(_abrir_inventario),
+                },
+            ),
         ]
-        ).execute()
-        if opcao == "🔍 Conferir status do personagem":
-            limpar_tela()
-            mostrar_status(personagem)
-            input("\nPressione ENTER para voltar...")
+    )
 
-        elif opcao == "⚔️ Iniciar o Combate - Enfrentar as Gárgulas de Dados com as habilidades que possui, aprendendo a dominar o sistema de turnos e a usar sua força para progredir.":
-            limpar_tela()
-            for ini in range(3):
-                digitar(f'🦇Gargula {ini+1} apareceu, enfrente!')
-                vencedor = combate(personagem, lista_inimigos[0])
-            if vencedor == personagem:
-                lore_recompensa001(personagem)
-                lore_pos_1andar(personagem)
-            else:
-                lore_introducao(personagem)
-            break
 
-        elif opcao == "🎒 Investigar Inventário":
-            limpar_tela()
-            inventario.interface_inv(personagem)
-            print()
+def criar_cena_1_andar(
+    inimigo_gargula: Inimigo | None = None,
+    etapa_recompensa: EtapaNarrativa | None = None,
+) -> EtapaNarrativa:
+    gargula = inimigo_gargula if inimigo_gargula is not None else lista_inimigos[0]
+    recompensa = (
+        etapa_recompensa
+        if etapa_recompensa is not None
+        else Acao(lore_recompensa001)
+    )
+    retorno_inicio = IrPara("introducao")
+
+    return Sequencia(
+        [
+            Acao(_preparar_1_andar),
+            Narracao(
+                'Você atravessa o portal que o leva do vazio da planície para dentro do Labirinto. A luz muda, tornando-se mais fria e metálica. O chão abaixo é um mosaico de placas metálicas e circuitos pulsantes, estendendo-se até onde a vista alcança. O ar é pesado com uma energia estática, e a sensação de estar sendo observado é constante. À distância, silhuetas se movem entre os pilares de luz — 3 Gárgulas de Dados, sentinelas programadas para detectar e eliminar intrusos. Suas asas de metal rangem, e seus olhos brilham com uma luz vermelha ameaçadora. Uma voz sintética, reconhecida do terminal, ecoa no ambiente:\n'
+            ),
+            Narracao(
+                "[bold purple][Sistema: “{nick}, prepare-se. O primeiro teste começou.”][/bold purple]",
+                com_rich=True,
+            ),
+            Escolha(
+                mensagem="O que deseja fazer?\n",
+                opcoes={
+                    "🔍 Conferir status do personagem": Acao(_conferir_status),
+                    "⚔️ Iniciar o Combate - Enfrentar as Gárgulas de Dados com as habilidades que possui, aprendendo a dominar o sistema de turnos e a usar sua força para progredir.": Sequencia(
+                        [
+                            Acao(lambda _: limpar_tela()),
+                            Narracao("🦇Gargula 1 apareceu, enfrente!"),
+                            Combate(inimigo=gargula, ao_perder=retorno_inicio),
+                            Narracao("🦇Gargula 2 apareceu, enfrente!"),
+                            Combate(inimigo=gargula, ao_perder=retorno_inicio),
+                            Narracao("🦇Gargula 3 apareceu, enfrente!"),
+                            Combate(inimigo=gargula, ao_perder=retorno_inicio),
+                            recompensa,
+                            IrPara("pos_1_andar"),
+                        ]
+                    ),
+                    "🎒 Investigar Inventário": Acao(_abrir_inventario),
+                },
+            ),
+        ]
+    )
+
+
+def criar_cena_pos_1_andar() -> EtapaNarrativa:
+    return Sequencia(
+        [
+            Acao(_preparar_pos_1_andar),
+            Narracao(
+                '\nCom o último golpe, a última Gárgula de Dados desmorona numa cascata de fragmentos de código, dissipando-se no ar frio do Labirinto. O silêncio retorna, pesado e cheio de expectativa. Sua ficha digital pulsa com uma luz verde, sinalizando o progresso — um novo degrau conquistado na escalada rumo ao último andar. Uma mensagem aparece diante de seus olhos:'
+            ),
+            Narracao(
+                '[bold purple]\n[Sistema]: “Parabéns, {nick}. Andar 1 conquistado. \nLembre-se, agora não há mais volta, o que lhe resta é continuar persistindo até alcançar um ponto seguro, \nse falhar no caminho antes de alcançar um ponto seguro você terá problemas com as gárgulas novamente” [/bold purple]\n',
+                com_rich=True,
+            ),
+            Narracao(
+                'À frente, o caminho se abre para um corredor iluminado por fios de energia azul que serpenteiam pelas paredes metálicas. O ar vibra com uma tensão diferente — mais densa, como se algo mais antigo e complexo estivesse aguardando. Você dá um passo à frente, consciente de que cada andar é um passo mais perto da liberdade — ou do abismo.'
+            ),
+            Escolha(
+                mensagem="O que deseja fazer?\n",
+                opcoes={
+                    "🔍 Conferir status do personagem": Acao(_conferir_status),
+                    "⬆️ Avançar para o Andar 2": Sequencia(
+                        [
+                            Acao(lambda _: limpar_tela()),
+                            IrPara("andar_2"),
+                        ]
+                    ),
+                    "🎒 Investigar Inventário": Acao(_abrir_inventario),
+                },
+            ),
+        ]
+    )
+
+
+def criar_executor_ato1() -> ExecutorNarrativa:
+    return ExecutorNarrativa(
+        cenas={
+            "introducao": criar_cena_introducao(),
+            "andar_1": criar_cena_1_andar(),
+            "pos_1_andar": criar_cena_pos_1_andar(),
+            "andar_2": Acao(lore_2_andar),
+        }
+    )
+
+
+def iniciar_narrativa(
+    personagem: Personagem,
+    cena_inicial: str = "introducao",
+) -> None:
+    criar_executor_ato1().executar(cena_inicial, personagem)
+
+
+def lore_introducao(personagem):
+    iniciar_narrativa(personagem, cena_inicial="introducao")
+
+
+def lore_1_andar(personagem):
+    iniciar_narrativa(personagem, cena_inicial="andar_1")
             
 
 def lore_recompensa001(personagem):
@@ -209,41 +303,7 @@ def lore_recompensa001(personagem):
     input('')
 
 def lore_pos_1andar(personagem):
-    limpar_tela()
-    if personagem.checkpoint >= 1:
-        tempo_digitar(0)
-    texto7 = ('\nCom o último golpe, a última Gárgula de Dados desmorona numa cascata de fragmentos de código, dissipando-se no ar frio do Labirinto. O silêncio retorna, pesado e cheio de expectativa. Sua ficha digital pulsa com uma luz verde, sinalizando o progresso — um novo degrau conquistado na escalada rumo ao último andar. Uma mensagem aparece diante de seus olhos:')
-    digitar(texto7)
-
-    print(f'[bold purple]\n[Sistema]: “Parabéns, {personagem.nick}. Andar 1 conquistado. \nLembre-se, agora não há mais volta, o que lhe resta é continuar persistindo até alcançar um ponto seguro, \nse falhar no caminho antes de alcançar um ponto seguro você terá problemas com as gárgulas novamente” [/bold purple]\n')
-
-    texto8 = ('À frente, o caminho se abre para um corredor iluminado por fios de energia azul que serpenteiam pelas paredes metálicas. O ar vibra com uma tensão diferente — mais densa, como se algo mais antigo e complexo estivesse aguardando. Você dá um passo à frente, consciente de que cada andar é um passo mais perto da liberdade — ou do abismo.')  
-    digitar(texto8)
-
-    while True:
-        print()
-        opcao = inquirer.select(
-        message="O que deseja fazer?\n",
-        choices=[
-            "🔍 Conferir status do personagem",
-            "⬆️ Avançar para o Andar 2",
-            "🎒 Investigar Inventário"
-        ]
-        ).execute()
-        if opcao == "🔍 Conferir status do personagem":
-            limpar_tela()
-            mostrar_status(personagem)
-            input("\nPressione ENTER para voltar...")
-
-        elif opcao == "⬆️ Avançar para o Andar 2":
-            limpar_tela()
-            lore_2_andar(personagem)
-            break
-
-        elif opcao == "🎒 Investigar Inventário":
-            limpar_tela()
-            inventario.interface_inv(personagem)
-            print()
+    iniciar_narrativa(personagem, cena_inicial="pos_1_andar")
     
 def lore_2_andar(personagem):
     limpar_tela()
